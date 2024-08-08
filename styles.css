@@ -1,0 +1,97 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+}
+
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+}
+
+#maze-container {
+  margin: 20px auto;
+  text-align: center;
+}
+
+.controls {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.controls button {
+  margin: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.controls select {
+  margin: 5px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+#info {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#info p {
+  font-size: 16px;
+}
+
+#info span {
+  font-weight: bold;
+}
+
+#maze-grid {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+#maze-grid td {
+  width: 30px;
+  height: 30px;
+  border: 1px solid #ccc;
+}
+
+.start {
+  background-color: green;
+}
+
+.end {
+  background-color: blue;
+}
+
+.wall {
+  background-color: black;
+}
+
+.path {
+  background-color: white;
+}
+
+.path.red {
+  background-color: red;
+}
+
+
+table {
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+td {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
+}
+

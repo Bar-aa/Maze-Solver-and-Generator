@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maze Solver and Generator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Maze Solver and Generator</h1>
+    <div id="maze-container">
+      <table id="maze-grid"></table>
+    </div>
+    <div class="controls">
+      <button onclick="generateRandomMaze()">Generate Random Maze</button>
+      <button onclick="resetMaze()">Reset Maze</button>
+      <button id="goal-button">Set Goal</button>
+      <button id="start-button">Set Start</button>
+      <br>
+      <label for="algorithm">Select Algorithm:</label>
+      <select id="algorithm">
+        <option value="astar">A* Search</option>
+        <option value="ucs">Uniform Cost Search</option>
+        <option value="bestfirst">Best-First Search</option>
+      </select>
+      <label for="heuristic">Select Heuristic:</label>
+      <select id="heuristic">
+        <option value="manhattan">Manhattan Distance</option>
+        <option value="euclidean">Euclidean Distance</option>
+      </select>
+      <button onclick="solveMaze()">Solve Maze</button>
+    </div>
+    <div id="info">
+      <p>Steps taken: <span id="steps-taken">0</span></p>
+      <p>Nodes explored: <span id="nodes-explored">0</span></p>
+    </div>
+  </div>
+</body>
+</html>
