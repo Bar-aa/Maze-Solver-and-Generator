@@ -1,82 +1,37 @@
 // Define maze variables
 let maze = []; // 2D array representing the maze
-let numRows = 7; // Number of rows in the maze
-let numCols = 7; // Number of columns in the maze
+let numRows = 5; // Number of rows in the maze
+let numCols = 5; // Number of columns in the maze
 let startRow = numRows - 1; // Start position row index (bottom-right corner)
 let startCol = numCols - 1; // Start position column index (bottom-right corner)
 let endRow = 0; // End position row index (top-left corner)
 let endCol = 0; // End position column index (top-left corner)
 let settingGoal = false; // Flag to indicate if we are setting the goal
+let settingStart = false; // Flag to indicate if we are setting the start
+let solving = false; // Flag to indicate if maze-solving is in progress
+let solveTimeouts = []; // Array to store timeouts for cancelling
+let stepsTaken = 0;
+let nodesExplored = 0;
 
-
-// Function to generate a random maze using Recursive Backtracking
+// Simplified maze generation function
 function generateRandomMaze() {
-  console.log('Generating random maze...');
-
-  // Initialize maze grid
   maze = [];
   for (let i = 0; i < numRows; i++) {
     maze.push([]);
     for (let j = 0; j < numCols; j++) {
-      maze[i].push(1); // Initialize all cells as walls (1)
+      maze[i].push(Math.random() > 0.7 ? 1 : 0); // Randomly set cell as wall (1) or path (0)
     }
   }
+  maze[startRow][startCol] = 0; // Ensure start position is a path
+  maze[endRow][endCol] = 0; // Ensure end position is a path
 
-  // Ensure start and end positions are paths
-  maze[startRow][startCol] = 0;
-  maze[endRow][endCol] = 0;
-
-  // Create the maze using Recursive Backtracking
-  const stack = [[startRow, startCol]];
-  const visited = Array.from({ length: numRows }, () => Array(numCols).fill(false));
-  visited[startRow][startCol] = true;
-
-  while (stack.length > 0) {
-    const [currentRow, currentCol] = stack[stack.length - 1];
-    const directions = [
-      [-2, 0], [2, 0], [0, -2], [0, 2]
-    ];
-    shuffleArray(directions);
-
-    let moved = false;
-    for (const [dRow, dCol] of directions) {
-      const nextRow = currentRow + dRow;
-      const nextCol = currentCol + dCol;
-      const betweenRow = currentRow + dRow / 2;
-      const betweenCol = currentCol + dCol / 2;
-
-      if (
-        nextRow >= 0 && nextRow < numRows &&
-        nextCol >= 0 && nextCol < numCols &&
-        !visited[nextRow][nextCol]
-      ) {
-        maze[betweenRow][betweenCol] = 0; // Mark intermediate cell as path (0)
-        maze[nextRow][nextCol] = 0; // Mark next cell as path (0)
-        visited[nextRow][nextCol] = true; // Mark next cell as visited
-        stack.push([nextRow, nextCol]);
-        moved = true;
-        break;
-      }
-    }
-
-    if (!moved) {
-      stack.pop(); // Backtrack
-    }
-  }
-
-  // Ensure start and end are open
-  maze[startRow][startCol] = 0;
-  maze[endRow][endCol] = 0;
-
-  // Display maze in HTML
   displayMaze();
 }
-
 
 // Function to enable goal setting mode
 function enableGoalSetting() {
   settingGoal = true;
-  document.getElementById('goal-button').disabled = true; // Disable the button while setting the goal
+  document.getElementById("goal-button").disabled = true; // Disable the button while setting the goal
 }
 
 // Function to set the goal position
@@ -93,60 +48,57 @@ function setGoal(row, col) {
     // Update the display
     displayMaze();
     settingGoal = false;
-    document.getElementById('goal-button').disabled = false; // Enable the button after setting the goal
+    document.getElementById("goal-button").disabled = false; // Enable the button after setting the goal
   }
 }
 
+// Function to enable start setting mode
+function enableStartSetting() {
+  settingStart = true;
+  document.getElementById("start-button").disabled = true; // Disable the button while setting the start
+}
 
-// Function to toggle the state of a cell between wall and path
-function toggleCellState(row, col) {
-  if (row < 0 || row >= numRows || col < 0 || col >= numCols) {
-    console.error('Cell coordinates are out of bounds');
-    return;
+// Function to set the start position
+function setStart(row, col) {
+  if (settingStart) {
+    maze[startRow][startCol] = 0; // Clear the previous start cell
+
+    startRow = row;
+    startCol = col;
+    maze[startRow][startCol] = 0; // Set the new start cell
+
+    displayMaze();
+    settingStart = false;
+    document.getElementById("start-button").disabled = false; // Enable the button after setting the start
   }
-
-  // Toggle the cell's state
-  if (maze[row][col] === 1) {
-    maze[row][col] = 0; // Change wall to path
-  } else if (maze[row][col] === 0) {
-    maze[row][col] = 1; // Change path to wall
-  }
-
-  // Update the display
-  displayMaze();
 }
 
 // Update the displayMaze function to call setGoal on cell click
 function displayMaze() {
-  let mazeContainer = document.getElementById('maze-grid');
-  if (!mazeContainer) {
-    console.error('Maze container not found');
-    return;
-  }
-
-  mazeContainer.innerHTML = ''; // Clear previous maze
+  let mazeContainer = document.getElementById("maze-grid");
+  mazeContainer.innerHTML = ""; // Clear previous maze
 
   for (let i = 0; i < numRows; i++) {
-    let row = document.createElement('tr');
+    let row = document.createElement("tr");
     for (let j = 0; j < numCols; j++) {
-      let cell = document.createElement('td');
+      let cell = document.createElement("td");
       if (i === startRow && j === startCol) {
-        cell.classList.add('start');
+        cell.classList.add("start");
       } else if (i === endRow && j === endCol) {
-        cell.classList.add('end');
+        cell.classList.add("end");
       } else if (maze[i][j] === 1) {
-        cell.classList.add('wall');
+        cell.classList.add("wall");
       } else if (maze[i][j] === 2) {
-        cell.classList.add('path');
-        cell.classList.add('red'); // Add red class for solution path
+        cell.classList.add("path", "red"); // Apply the red color to the solution path
       } else {
-        cell.classList.add('path');
+        cell.classList.add("path");
       }
 
-      // Add a click event listener to toggle cell state or set goal
-      cell.addEventListener('click', () => {
+      cell.addEventListener("click", () => {
         if (settingGoal) {
           setGoal(i, j);
+        } else if (settingStart) {
+          setStart(i, j);
         } else {
           toggleCellState(i, j);
         }
@@ -158,187 +110,239 @@ function displayMaze() {
   }
 }
 
-// Helper function to shuffle an array randomly
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
+// Function to toggle cell state (wall or path)
+function toggleCellState(row, col) {
+  maze[row][col] = maze[row][col] === 1 ? 0 : 1;
+  displayMaze();
 }
 
-// Function to reset the maze
 function resetMaze() {
-  // Iterate over the maze grid and reset the solution path
+  // Cancel any ongoing solving animations
+  solveTimeouts.forEach(clearTimeout);
+  solving = false;
+  solveTimeouts = [];
+
+  // Reset maze state
   for (let i = 0; i < numRows; i++) {
-    for (let j = 0; j < numCols; j++) {
-      if (maze[i][j] === 2) {
-        maze[i][j] = 0; // Reset solution path to regular path
+      for (let j = 0; j < numCols; j++) {
+          if (maze[i][j] === 2) {
+              maze[i][j] = 0; // Reset solution path to regular path
+          }
       }
-    }
   }
+
+  // Reset steps taken and nodes explored
+  stepsTaken = 0;
+  nodesExplored = 0;
+  document.getElementById("steps-taken").innerText = stepsTaken;
+  document.getElementById("nodes-explored").innerText = nodesExplored;
 
   // Update the display
   displayMaze();
 }
 
-// Function to calculate Manhattan distance
-function manhattanDistance(x1, y1, x2, y2) {
-  return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+// Function to calculate the heuristic based on user's choice
+function calculateHeuristic(heuristicType, pointA, pointB) {
+  switch (heuristicType) {
+      case "manhattan":
+          return manhattanDistance(pointA, pointB);
+      case "euclidean":
+          return euclideanDistance(pointA, pointB);
+      default:
+          return manhattanDistance(pointA, pointB); // Default to Manhattan if none selected
+  }
 }
 
-// Function to calculate Euclidean distance
-function euclideanDistance(x1, y1, x2, y2) {
-  return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
+// Function to calculate Manhattan Distance
+function manhattanDistance(pointA, pointB) {
+  return Math.abs(pointA[0] - pointB[0]) + Math.abs(pointA[1] - pointB[1]);
 }
 
-// Function to solve the maze using the selected algorithm
+// Function to calculate Euclidean Distance
+function euclideanDistance(pointA, pointB) {
+  return Math.sqrt(
+      Math.pow(pointA[0] - pointB[0], 2) + Math.pow(pointA[1] - pointB[1], 2)
+  );
+}
+
+// Main function to solve the maze based on selected algorithm and heuristic
 function solveMaze() {
-  let algorithm = document.getElementById('algorithm').value;
-  let heuristic = document.getElementById('heuristic').value;
+  const algorithm = document.getElementById("algorithm").value;
+  const heuristicType = document.getElementById("heuristic").value;
 
-  if (algorithm !== 'astar' && algorithm !== 'ucs' && algorithm !== 'bestfirst') {
-    console.log('Selected algorithm is not supported.');
-    return;
+  if (algorithm === "astar") {
+      aStarSearch(heuristicType);
   }
+}
 
-  console.log(`Solving maze using ${algorithm} with ${heuristic} heuristic...`);
+// Function to perform A* Search
+async function aStarSearch(heuristicType) {
+  if (solving) return; // Exit if already solving
+  solving = true;
 
-  let openList = new PriorityQueue();
-  let closedList = new Set();
-  let path = [];
-  let steps = 0;
-  let nodesExplored = 0;
+  nodesExplored = 0;
+  document.getElementById("nodes-explored").innerText = nodesExplored;
 
-  openList.enqueue([startRow, startCol], 0); // Enqueue start position with cost 0
+  const openList = [];
+  const closedList = new Set();
+  const gScore = Array(numRows)
+      .fill(null)
+      .map(() => Array(numCols).fill(Infinity));
+  const fScore = Array(numRows)
+      .fill(null)
+      .map(() => Array(numCols).fill(Infinity));
+  const cameFrom = {};
 
-  let parents = {};
-  parents[`${startRow},${startCol}`] = null;
+  const startNode = {
+      x: startRow,
+      y: startCol,
+      g: 0,
+      h: calculateHeuristic(heuristicType, [startRow, startCol], [endRow, endCol]),
+      f: 0
+  };
+  openList.push(startNode);
+  gScore[startRow][startCol] = 0;
+  fScore[startRow][startCol] = startNode.h;
 
-  let cost = {};
-  cost[`${startRow},${startCol}`] = 0;
+  console.log("A* Search started");
+  console.log(`Start Node: (${startRow}, ${startCol})`);
+  console.log(`Goal Node: (${endRow}, ${endCol})`);
 
-  while (!openList.isEmpty()) {
-    let [currentRow, currentCol] = openList.dequeue().element;
-    steps++;
-
-    if (currentRow === endRow && currentCol === endCol) {
-      let node = `${endRow},${endCol}`;
-      while (node) {
-        path.unshift(node.split(',').map(Number));
-        node = parents[node];
-      }
-      break;
-    }
-
-    closedList.add(`${currentRow},${currentCol}`);
-
-    let directions = [
-      [-1, 0], [1, 0], [0, -1], [0, 1]
-    ];
-
-    for (let [dRow, dCol] of directions) {
-      let nextRow = currentRow + dRow;
-      let nextCol = currentCol + dCol;
-      let nextCell = `${nextRow},${nextCol}`;
-
-      if (
-        nextRow >= 0 && nextRow < numRows &&
-        nextCol >= 0 && nextCol < numCols &&
-        !closedList.has(nextCell) &&
-        maze[nextRow][nextCol] === 0
-      ) {
-        let newCost = cost[`${currentRow},${currentCol}`] + 1;
-        let priority = newCost;
-
-        if (algorithm === 'astar' || algorithm === 'bestfirst') {
-          if (heuristic === 'manhattan') {
-            priority += manhattanDistance(nextRow, nextCol, endRow, endCol);
-          } else if (heuristic === 'euclidean') {
-            priority += euclideanDistance(nextRow, nextCol, endRow, endCol);
+  while (openList.length > 0) {
+      // Sort openList to get the node with the least f value and apply tie-breaking
+      openList.sort((a, b) => {
+          if (a.f === b.f) {
+              return (a.x + a.y) - (b.x + b.y);
           }
-        }
+          return a.f - b.f;
+      });
 
-        if (!(nextCell in cost) || newCost < cost[nextCell]) {
-          cost[nextCell] = newCost;
-          openList.enqueue([nextRow, nextCol], priority);
-          parents[nextCell] = `${currentRow},${currentCol}`;
-        }
+      const currentNode = openList.shift();
+      const { x: currentX, y: currentY, g, h, f } = currentNode;
+
+      // Print the current node details
+      console.log(`Exploring Node: (${currentX}, ${currentY}) - g: ${g}, h: ${h}, f: ${f}`);
+
+      // Color the current node as explored (yellow)
+      await colorExploredNode([currentX, currentY]);
+
+      if (currentX === endRow && currentY === endCol) {
+          console.log(`Goal reached at (${currentX}, ${currentY})`);
+          reconstructPath(cameFrom, currentNode);
+          solving = false;
+          return;
       }
-    }
-    nodesExplored++;
+
+      closedList.add(`${currentX}_${currentY}`);
+      nodesExplored++;
+      document.getElementById("nodes-explored").innerText = nodesExplored;
+
+      for (const movement of [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
+      ]) {
+          const neighborX = currentX + movement[0];
+          const neighborY = currentY + movement[1];
+
+          if (
+              neighborX < 0 ||
+              neighborX >= numRows ||
+              neighborY < 0 ||
+              neighborY >= numCols ||
+              maze[neighborX][neighborY] === 1 ||
+              closedList.has(`${neighborX}_${neighborY}`)
+          ) {
+              continue;
+          }
+
+          const g = currentNode.g + 1;
+          const h = calculateHeuristic(heuristicType, [neighborX, neighborY], [endRow, endCol]);
+          const f = g + h;
+          const neighborKey = `${neighborX}_${neighborY}`;
+          const neighborNode = { x: neighborX, y: neighborY, g, h, f };
+
+          const existingNodeIndex = openList.findIndex(node => node.x === neighborX && node.y === neighborY);
+
+          if (existingNodeIndex !== -1) {
+              if (g >= gScore[neighborX][neighborY]) {
+                  continue;
+              }
+              openList[existingNodeIndex] = neighborNode;
+          } else {
+              openList.push(neighborNode);
+          }
+
+          cameFrom[neighborKey] = currentNode;
+          gScore[neighborX][neighborY] = g;
+          fScore[neighborX][neighborY] = f;
+
+          // Print details about each neighbor
+          console.log(`  Neighbor: (${neighborX}, ${neighborY}) - g: ${g}, h: ${h}, f: ${f}`);
+      }
   }
 
-  document.getElementById('steps-taken').innerText = steps;
-  document.getElementById('nodes-explored').innerText = nodesExplored;
-
-  if (path.length > 0) {
-    displaySolvedMaze(path);
-  } else {
-    console.log('No path found');
-  }
+  console.log("No path found");
+  solving = false; // Set solving to false if no path is found
 }
 
-// PriorityQueue class
-class PriorityQueue {
-  constructor() {
-    this.elements = [];
+
+
+// Function to reconstruct the path and update the final steps taken
+function reconstructPath(cameFrom, currentNode) {
+  let path = [];
+  while (currentNode) {
+      path.push(currentNode);
+      currentNode = cameFrom[`${currentNode.x}_${currentNode.y}`];
   }
 
-  enqueue(element, priority) {
-    this.elements.push({ element, priority });
-    this.elements.sort((a, b) => a.priority - b.priority);
-  }
-
-  dequeue() {
-    return this.elements.shift();
-  }
-
-  isEmpty() {
-    return this.elements.length === 0;
-  }
-}
-
-// Function to display the solved maze with the path in red
-function displaySolvedMaze(path) {
-  console.log('Displaying solved maze...');
-  let mazeContainer = document.getElementById('maze-grid');
-  if (!mazeContainer) {
-    console.error('Maze container not found');
-    return;
-  }
-
-  let solvedMaze = maze.map(row => row.slice());
-
-  path.forEach(([row, col]) => {
-    if (!(row === startRow && col === startCol) && !(row === endRow && col === endCol)) {
-      solvedMaze[row][col] = 2; // Mark path as 2
-    }
+  // Display the path in red
+  path.reverse(); // Reverse to get path from start to end
+  path.forEach(node => {
+      document
+          .querySelector(`#maze-grid tr:nth-child(${node.x + 1}) td:nth-child(${node.y + 1})`)
+          .classList.add("red");
   });
 
-  mazeContainer.innerHTML = '';
-  for (let i = 0; i < numRows; i++) {
-    let row = document.createElement('tr');
-    for (let j = 0; j < numCols; j++) {
-      let cell = document.createElement('td');
-      if (i === startRow && j === startCol) {
-        cell.classList.add('start');
-      } else if (i === endRow && j === endCol) {
-        cell.classList.add('end');
-      } else if (solvedMaze[i][j] === 1) {
-        cell.classList.add('wall');
-      } else if (solvedMaze[i][j] === 2) {
-        cell.classList.add('path');
-        cell.classList.add('red'); // Add red class for solution path
-      } else {
-        cell.classList.add('path');
-      }
-      row.appendChild(cell);
-    }
-    mazeContainer.appendChild(row);
-  }
-}
-// Add the button click listener
-document.getElementById('goal-button').addEventListener('click', enableGoalSetting);
+  // Update steps taken to represent the final path length
+  stepsTaken = path.length;
+  document.getElementById("steps-taken").innerText = stepsTaken;
 
-// Initial generation of maze
+  console.log(`Final path length (steps taken): ${stepsTaken}`);
+}
+
+
+// Function to color a node as explored (yellow) with a delay
+function colorExploredNode(node) {
+  return new Promise((resolve) => {
+    const [x, y] = node;
+
+    // Check if the node is the start or goal, skip coloring if so
+    if ((x === startRow && y === startCol) || (x === endRow && y === endCol)) {
+      setTimeout(resolve, 500); // Just delay without changing color
+    } else {
+      const timeout = setTimeout(() => {
+        document
+          .querySelector(`#maze-grid tr:nth-child(${x + 1}) td:nth-child(${y + 1})`)
+          .classList.add("explored");
+        resolve();
+      }, 500); // Wait for 0.5 seconds before resolving
+      solveTimeouts.push(timeout);
+    }
+  });
+}
+
+// Add event listeners for the buttons
+document
+  .getElementById("goal-button")
+  .addEventListener("click", enableGoalSetting);
+document
+  .getElementById("start-button")
+  .addEventListener("click", enableStartSetting);
+document
+  //.getElementById("reset-button")
+  //.addEventListener("click", resetMaze); // Added event listener for reset button
+
+// Initial maze generation
 generateRandomMaze();

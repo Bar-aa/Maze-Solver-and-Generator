@@ -83,15 +83,6 @@ h1 {
   background-color: red;
 }
 
-
-table {
-  border-collapse: collapse;
-  margin: 20px 0;
+.explored {
+  background-color: yellow;
 }
-
-td {
-  width: 20px;
-  height: 20px;
-  border: 1px solid #000;
-}
-
