@@ -1,19 +1,23 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #faf7f7;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 70px;
+  background-color: #e7c9c9;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(12, 12, 12, 0.2);
 }
 
 h1 {
   text-align: center;
+  color: #0c0c0c;
+  margin-bottom: 10px;
 }
 
 #maze-container {
@@ -22,21 +26,39 @@ h1 {
 }
 
 .controls {
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
   margin-bottom: 20px;
 }
 
 .controls button {
-  margin: 5px;
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 15px 30px;
+  font-size: 14px;
   cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  background-color: #963779;
+  color: rgb(245, 245, 245);
+  transition: background-color 0.3s ease;
+}
+
+.controls button:hover {
+  background-color: #745d69;
+}
+
+.dropdowns {
+  display: flex;
+  gap: 15px;
+  align-items: center;
 }
 
 .controls select {
-  margin: 5px;
-  padding: 8px;
-  font-size: 14px;
+  padding: 15px;
+  font-size: 15px;
+  border: 5px solid #774165;
+  border-radius: 60px;
 }
 
 #info {
@@ -45,7 +67,8 @@ h1 {
 }
 
 #info p {
-  font-size: 16px;
+  font-size: 14px;
+  color: #660847;
 }
 
 #info span {
@@ -60,29 +83,29 @@ h1 {
 #maze-grid td {
   width: 30px;
   height: 30px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
 }
 
 .start {
-  background-color: green;
+  background-color: #619c6f;
 }
 
 .end {
-  background-color: blue;
+  background-color: #688aad;
 }
 
 .wall {
-  background-color: black;
+  background-color: #5c3e55;
 }
 
 .path {
-  background-color: white;
+  background-color: #ffffff;
 }
 
 .path.red {
-  background-color: red;
+  background-color: #e05c69;
 }
 
 .explored {
-  background-color: yellow;
+  background-color: #ffc107;
 }

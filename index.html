@@ -9,32 +9,33 @@
 </head>
 <body>
   <div class="container">
-    <h1>Maze Solver and Generator</h1>
+    <h1>  Welcom to Game Maze Solver  </h1>
     <div id="maze-container">
       <table id="maze-grid"></table>
     </div>
     <div class="controls">
       <button onclick="generateRandomMaze()">Generate Random Maze</button>
-      <button onclick="resetMaze()">Reset Maze</button>
+      <button onclick="resetMaze()">Reset</button>
       <button id="goal-button" onclick="enableGoalSetting()">Set Goal</button>
       <button id="start-button" onclick="enableStartSetting()">Set Start</button>
-      <br>
-      <label for="algorithm">Select Algorithm:</label>
-      <select id="algorithm">
-        <option value="astar">A* Search</option>
-        <option value="ucs">Uniform Cost Search</option>
-        <option value="bestfirst">Best-First Search</option>
-      </select>
-      <label for="heuristic">Select Heuristic:</label>
-      <select id="heuristic">
-        <option value="manhattan">Manhattan Distance</option>
-        <option value="euclidean">Euclidean Distance</option>
-      </select>
-      <button onclick="solveMaze()">Solve Maze</button>
+      <div class="dropdowns">
+        <label for="algorithm">Select Algorithm</label>
+        <select id="algorithm">
+          <option value="astar">A* Search</option>
+          <option value="ucs">Uniform Cost Search</option>
+          <option value="bestfirst">Best-First Search</option>
+        </select>
+        <label for="heuristic">Select Heuristic</label>
+        <select id="heuristic">
+          <option value="manhattan">Manhattan</option>
+          <option value="euclidean">Euclidean</option>
+        </select>
+      </div>
+      <button onclick="solveMaze()">Solve</button>
     </div>
     <div id="info">
-      <p>Steps taken: <span id="steps-taken">0</span></p>
-      <p>Nodes explored: <span id="nodes-explored">0</span></p>
+      <p>Steps: <span id="steps-taken">0</span></p>
+      <p>Nodes Explored: <span id="nodes-explored">0</span></p>
     </div>
   </div>
 </body>
